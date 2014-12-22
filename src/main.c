@@ -1,8 +1,10 @@
 #include <pebble.h>
 
-static Window* s_main_window;
-static TextLayer* s_time_layer;
+static Window *s_main_window;
+static TextLayer *s_time_layer;
 static GFont s_time_font;
+static BitmapLayer *s_background_layer;
+static GBitmap *s_background_bitmap;
 
 static void update_time() {
   time_t temp = time(NULL);
@@ -25,6 +27,12 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
 
 static void main_window_load(Window* window) {
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
+  s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
+  bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
+  layer_add_child(window_get_root_layer(window), 
+                  bitmap_layer_get_layer(s_background_layer));
+  
   s_time_layer = text_layer_create(GRect(5, 52, 139, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
@@ -42,6 +50,8 @@ static void main_window_load(Window* window) {
 static void main_window_unload(Window* window) {
   text_layer_destroy(s_time_layer);
   fonts_unload_custom_font(s_time_font);
+  gbitmap_destroy(s_background_bitmap);
+  bitmap_layer_destroy(s_background_layer);
   
 }
 
